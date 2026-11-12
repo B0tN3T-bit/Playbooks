@@ -1,0 +1,12 @@
+---
+- name: Check Apache Process Uptime
+  hosts: app_servers
+  tasks:
+    - name: Run httpd process uptime command
+      shell: apachectl status | grep "Active"
+      register: httpd_uptime
+
+    - name: Display httpd process uptime
+      debug:
+        var: httpd_uptime.stdout
+

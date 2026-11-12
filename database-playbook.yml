@@ -1,0 +1,42 @@
+---
+- name: Install MariaDB
+  hosts: all
+  become: true
+  vars_prompt:
+  - name: password
+    prompt: "Enter MariaDB root password"
+    private: no
+  tasks:
+  - name: Installing MariaDB & Related Packages
+    ansible.builtin.dnf:
+      name:
+      - mariadb-server.x86_64
+      - mariadb-server-utils.x86_64
+      - mariadb-server-utils.x86_64
+      - mariadb-common.x86_64
+      - mariadb-connector-odbc.x86_64
+      - mariadb-devel.x86_64
+      - mariadb-java-client.noarch
+      - "https://download-ib01.fedoraproject.org/pub/epel/8/Everything/x86_64/Packages/p/python3-mysqlclient-1.4.6-2.el8.x86_64.rpm"
+      state: present
+  - name: Start & Enable MariaDB
+    service:
+      name: mariadb
+      enabled: yes
+      state: started
+  - name: Is root password set?
+    command: mysql -u root --execute "SELECT NOW()"
+    register: is_root_password_set
+    ignore_errors: yes
+  - name: Delete anonymous users
+    mysql_user:
+      user=""
+      state="absent"
+    when: is_root_password_set.rc == 0
+  - name: Set Password
+    mysql_user:
+      user=root
+      password="{{password}}"
+      host=localhost
+    when: is_root_password_set.rc == 0
+

@@ -1,0 +1,31 @@
+---
+- name: List Git branches in repositories on remote hosts
+  hosts: app_servers
+  become: yes
+  tasks:
+    - name: Check if directory exists and is a Git repository
+      shell: |
+        if [[ -d "{{ item }}" && -d "{{ item }}/.git" ]]; then
+          echo "Current branches in {{ inventory_hostname }}: {{ item }}"
+          active_branch=$(cd {{ item }} && git branch | grep '*' | sed 's/* //')
+          echo "  * $active_branch"
+          # Print other branches
+          cd {{ item }} && git branch | grep -v '*' | while read branch; do echo "  $branch"; done
+        else
+          echo "Skipping {{ inventory_hostname }}: {{ item }} - Not a Git repository"
+        fi
+      with_items:
+        - /var/www/html/alpha/gateway
+        - /var/www/html/alpha/api_services/service1
+        - /var/www/html/alpha/api_services/service2
+        - /var/www/html/alpha/api_services/service3
+        - /var/www/html/alpha/api_services/service4
+        - /var/www/html/alpha/api_services/service5
+        - /var/www/html/alpha/api_services/service6
+        - /var/www/html/service7
+      register: git_branch_output
+
+    - name: Display output of Git branch listing
+      debug:
+        var: git_branch_output.results
+

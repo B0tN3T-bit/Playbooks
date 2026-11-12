@@ -1,0 +1,10 @@
+---
+- name: Restart Nimble on all CDN servers
+  hosts: cdn_servers
+  become: yes
+  tasks:
+    - name: Restart Nimble service
+      service:
+        name: nimble
+        state: restarted
+

@@ -1,0 +1,14 @@
+- name: Get Git branch status on app-server
+  hosts: target-servers-group \\ replace with your servers 
+  gather_facts: no
+  tasks:
+    - name: Check Git branch status
+      ansible.builtin.command:
+        cmd: "git -C (directory where the git remote is configured and you want to check the status of repo) status"
+      register: git_status
+
+    - name: Show Git branch status
+      ansible.builtin.debug:
+        msg: "{{ git_status.stdout_lines }}"
+
+

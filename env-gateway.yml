@@ -1,0 +1,17 @@
+- name: Synchronization of project-dir to app-servers HTTPD root directory
+  hosts:
+    - servers-group
+  ignore_unreachable: yes
+  tasks:
+   - name: Sync GATEWAY .ENV File
+     ansible.posix.synchronize:
+       src: /data/api_gateway/<source-env-file>
+       dest: /var/www/html/gateway/.env
+
+   - name: change permissions on the alpha directory
+     ansible.builtin.file:
+      path: /var/www/html/gateway/.env
+      group: root
+      mode: 0777
+      owner: root
+

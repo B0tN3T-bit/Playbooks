@@ -1,0 +1,24 @@
+---
+- name: Collect Nimble connections from all CDN servers
+  hosts: cdn_servers
+  become: yes
+  vars:
+    ansible_python_interpreter: /usr/bin/python3  # Ensure Python 3 is used
+  tasks:
+    - name: Gather Nimble connection count
+      shell: "ss -antup | grep nimble | grep 8087 | grep ESTAB | wc -l"
+      register: nimble_connections
+      changed_when: false
+
+    - name: Store connection count in MySQL database
+      delegate_to: localhost
+      community.mysql.mysql_query:
+        login_host: db-ip
+        login_port: 3306
+        login_user: db-user
+        login_password: "password"
+        login_db: db-name
+        query: >
+          INSERT INTO tablename (cdn_name, connections, timestamp)
+          VALUES ('{{ inventory_hostname }}', '{{ nimble_connections.stdout }}', NOW());
+
