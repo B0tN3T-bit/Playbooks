@@ -1,0 +1,26 @@
+---
+- name: Configure Log Rotate for httpd service on servers
+  hosts: app-servers
+  become: true
+
+  vars:
+    httpd_logrotate_paths:
+      - /var/log/httpd/*log
+    httpd_logrotate_frequency: daily
+    httpd_logrotate_maxsize: 1G
+    httpd_logrotate_rotate: 8
+    httpd_logrotate_compress: true
+    httpd_logrotate_delaycompress: true
+    httpd_logrotate_dateext: true
+    httpd_service_name: httpd.service
+
+  tasks:
+    - name: Deploy logrotate configuration for httpd
+      ansible.builtin.template:
+        src: httpd_logrotate.j2
+        dest: /etc/logrotate.d/httpd
+        owner: root
+        group: root
+        mode: '0644'
+        backup: true
+        validate: '/usr/sbin/logrotate -d %s'

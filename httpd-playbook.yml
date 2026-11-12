@@ -1,0 +1,17 @@
+---
+- name: To deploy HTTPD config file 
+  hosts: server-group
+  tasks:
+  - name: Copy httpd.conf file to /etc/httpd/conf/
+    ansible.builtin.copy:
+      src: /source/httpd-tuned-file.conf
+      dest: /etc/httpd/conf/httpd.conf
+      backup: yes
+      mode: 0644 \\setting the appropriate permissions
+    notify:
+      - restart_httpd
+  handlers:
+    - name: restart_httpd
+      service:
+        name: httpd
+        state: reloaded

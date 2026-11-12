@@ -1,0 +1,15 @@
+---
+- name: To manipulate default configurations of SSHD
+  hosts: all
+  tasks:
+  - name: Chnage SSH default port
+    lineinfile:
+       dest: "/etc/ssh/sshd_config"
+       regexp: "^#Port"
+       line:  "Port 2222"
+    notify: restart sshd
+  handlers:
+  - name: restart sshd
+    service:
+      name: sshd
+      state: restarted 

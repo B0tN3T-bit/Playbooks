@@ -1,0 +1,11 @@
+- name: Get public IP from remote servers
+  hosts: all
+  gather_facts: no
+  tasks:
+    - name: Retrieve public IP
+      command: curl ifconfig.me
+      register: public_ip
+
+    - name: Output only public IP
+      debug:
+        msg: "{{ public_ip.stdout }}"

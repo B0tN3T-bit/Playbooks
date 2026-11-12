@@ -1,0 +1,29 @@
+
+{{ httpd_logrotate_paths | default(['/var/log/httpd/*log']) | join(' ') }} {
+    {{ httpd_logrotate_frequency | default('daily') }}
+{% if httpd_logrotate_size is defined and httpd_logrotate_size %}
+    size {{ httpd_logrotate_size }}
+{% endif %}
+{% if httpd_logrotate_maxsize is defined and httpd_logrotate_maxsize %}
+    maxsize {{ httpd_logrotate_maxsize }}
+{% endif %}
+    rotate {{ httpd_logrotate_rotate | default(8) }}
+{% if httpd_logrotate_compress | default(true) | bool %}
+    compress
+{% if httpd_logrotate_delaycompress | default(true) | bool %}
+    delaycompress
+{% endif %}
+{% endif %}
+{% if httpd_logrotate_dateext | default(true) | bool %}
+    dateext
+{% endif %}
+    missingok
+    notifempty
+    sharedscripts
+{% if httpd_logrotate_create is defined and httpd_logrotate_create %}
+    create {{ httpd_logrotate_create }}
+{% endif %}
+    postrotate
+        /bin/systemctl reload {{ httpd_service_name | default('httpd.service') }} > /dev/null 2>/dev/null || true
+    endscript
+}
