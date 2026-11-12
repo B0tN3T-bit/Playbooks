@@ -1,0 +1,26 @@
+- name: Scan open ports on public IP using nmap
+  hosts: servers
+  gather_facts: no
+  tasks:
+    - name: Install nmap if not installed (for target servers)
+      become: yes
+      package:
+        name: nmap
+        state: present
+
+    - name: Get public IP of the server
+      command: "curl -s ifconfig.me"
+      register: public_ip
+
+    - name: Display public IP
+      debug:
+        msg: "Public IP: {{ public_ip.stdout }}"
+
+    - name: Run nmap scan on the public IP
+      command: "nmap -Pn {{ public_ip.stdout }}"
+      register: nmap_output
+      ignore_errors: yes
+
+    - name: Display nmap scan results
+      debug:
+        msg: "{{ nmap_output.stdout }}"
